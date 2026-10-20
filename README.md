@@ -49,3 +49,15 @@ Experience Bonfire [here.](https://usebonfire.vercel.app/)
 
 Made with ❤️ by Ary<br>
 Love to the point of creation
+## Self-hosting
+
+The image (built by `.github/workflows/docker.yml` on every push to `main`) serves the app and its own signaling endpoint, so no Cloudflare Worker is needed.
+
+```sh
+echo "DOMAIN=bonfire.example.com" > .env
+docker compose up -d
+```
+
+Point the domain's DNS at the host and open ports 80/443; Caddy gets the HTTPS certificate automatically. HTTPS is required because browsers only allow camera/mic on secure origins.
+
+Already have a reverse proxy? Drop the `caddy` service, add `ports: ["8080:8080"]` to `bonfire`, and proxy your domain to it.

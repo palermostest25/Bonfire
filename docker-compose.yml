@@ -1,0 +1,18 @@
+services:
+  bonfire:
+    image: ghcr.io/palermostest25/bonfire:latest
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    command: caddy reverse-proxy --from ${DOMAIN:?Set DOMAIN in .env} --to bonfire:8080
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - caddy_data:/data
+
+volumes:
+  caddy_data:

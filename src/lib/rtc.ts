@@ -6,7 +6,7 @@ const ICE: RTCConfiguration = {
     ],
 }
 
-export const SIGNAL = 'https://bonfire.aryanmadan.workers.dev'
+export const SIGNAL = import.meta.env.VITE_SIGNAL_URL || '/signal'
 
 export interface Peer {
     conn: RTCPeerConnection
