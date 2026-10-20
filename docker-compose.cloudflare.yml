@@ -2,12 +2,5 @@ services:
   bonfire:
     image: ghcr.io/palermostest25/bonfire:latest
     restart: unless-stopped
-
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    restart: unless-stopped
-    command: tunnel --no-autoupdate run
-    environment:
-      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in .env}
-    depends_on:
-      - bonfire
+    ports:
+      - 3080:8080
