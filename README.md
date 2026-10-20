@@ -5,7 +5,7 @@
 ## How it works & Web RTC
 
 It runs entirely peer-to-peer using WebRTC.  
-Because WebRTC is peer-to-peer, the two browsers must exchange connection details (SDP offers and answers) to find each other. Bonfire achieves this using a Cloudflare Worker.
+Because WebRTC is peer-to-peer, the two browsers must exchange connection details (SDP offers and answers) to find each other. Bonfire's server briefly holds those details so the two browsers can find each other.
 
 ## Privacy
 
@@ -49,30 +49,42 @@ Experience Bonfire [here.](https://usebonfire.vercel.app/)
 
 Made with ❤️ by Ary<br>
 Love to the point of creation
+
 ## Self-hosting
 
-The image (built by `.github/workflows/docker.yml` on every push to `main`) serves the app and its own signaling endpoint, so no Cloudflare Worker is needed. Pick one compose file:
+Bonfire runs as one Docker image, `ghcr.io/palermostest25/bonfire:latest`, built for amd64 and arm64 on every push to `main`. It serves the app and its own signaling endpoint. There's no database and nothing to configure.
 
-### Cloudflare Tunnel
+> [!IMPORTANT]
+> Bonfire must be served over **HTTPS**. Browsers block the camera and mic on plain `http://` (except `localhost`).
 
-1. Cloudflare dashboard → Zero Trust → Networks → Tunnels → create a tunnel, copy its token.
-2. In the tunnel, add a public hostname (your domain) pointing to `http://bonfire:8080`.
-3. Run:
+### Option 1: Cloudflare Tunnel or your own reverse proxy
+
+Use this if you already have a tunnel or reverse proxy.
 
 ```sh
-echo "TUNNEL_TOKEN=<token>" > .env
+curl -O https://raw.githubusercontent.com/palermostest25/Bonfire/main/docker-compose.cloudflare.yml
 docker compose -f docker-compose.cloudflare.yml up -d
 ```
 
-No ports need opening.
+Then, in Cloudflare, add a published application route for your domain pointing to `http://<host-ip>:3080`. If port `3080` is taken, change it in the compose file.
 
-### Caddy
+### Option 2: Caddy (standalone)
+
+Caddy gets and renews the HTTPS certificate for your domain automatically. Point your domain's DNS at the host, and make sure ports 80 and 443 are reachable.
 
 ```sh
+curl -O https://raw.githubusercontent.com/palermostest25/Bonfire/main/docker-compose.caddy.yml
 echo "DOMAIN=bonfire.example.com" > .env
 docker compose -f docker-compose.caddy.yml up -d
 ```
 
-Point the domain's DNS at the host and open ports 80/443; Caddy gets the HTTPS certificate automatically.
+### Updating
 
-HTTPS is required either way, because browsers only allow camera/mic on secure origins.
+```sh
+docker compose -f <compose-file> pull
+docker compose -f <compose-file> up -d
+```
+
+### Healthcheck
+
+`GET /healthz` returns `200 ok`. The image includes a Docker healthcheck, so `docker ps` shows the container as `healthy`.
