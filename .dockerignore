@@ -4,5 +4,5 @@ dist
 .github
 worker
 *.md
-docker-compose.yml
+docker-compose*.yml
 .env

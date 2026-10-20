@@ -51,13 +51,28 @@ Made with ❤️ by Ary<br>
 Love to the point of creation
 ## Self-hosting
 
-The image (built by `.github/workflows/docker.yml` on every push to `main`) serves the app and its own signaling endpoint, so no Cloudflare Worker is needed.
+The image (built by `.github/workflows/docker.yml` on every push to `main`) serves the app and its own signaling endpoint, so no Cloudflare Worker is needed. Pick one compose file:
+
+### Cloudflare Tunnel
+
+1. Cloudflare dashboard → Zero Trust → Networks → Tunnels → create a tunnel, copy its token.
+2. In the tunnel, add a public hostname (your domain) pointing to `http://bonfire:8080`.
+3. Run:
+
+```sh
+echo "TUNNEL_TOKEN=<token>" > .env
+docker compose -f docker-compose.cloudflare.yml up -d
+```
+
+No ports need opening.
+
+### Caddy
 
 ```sh
 echo "DOMAIN=bonfire.example.com" > .env
-docker compose up -d
+docker compose -f docker-compose.caddy.yml up -d
 ```
 
-Point the domain's DNS at the host and open ports 80/443; Caddy gets the HTTPS certificate automatically. HTTPS is required because browsers only allow camera/mic on secure origins.
+Point the domain's DNS at the host and open ports 80/443; Caddy gets the HTTPS certificate automatically.
 
-Already have a reverse proxy? Drop the `caddy` service, add `ports: ["8080:8080"]` to `bonfire`, and proxy your domain to it.
+HTTPS is required either way, because browsers only allow camera/mic on secure origins.
